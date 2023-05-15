@@ -1,0 +1,11 @@
+public function query()
+    {
+        $orders = DB::table('customer as c')->join('orderinfo as o','o.customer_id', '=', 'c.customer_id')
+        ->join('orderline as ol','o.orderinfo_id', '=', 'ol.orderinfo_id')
+        ->join('item as i','ol.item_id', '=', 'i.item_id')
+        ->where('c.user_id', Auth::id())
+        ->select('o.orderinfo_id', 'o.date_placed', DB::raw("SUM(ol.quantity * i.sell_price) as total"))
+        ->groupBy('o.orderinfo_id', 'o.date_placed');
+       
+        return $orders;
+    }
