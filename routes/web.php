@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\CustomerController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -26,6 +27,7 @@ Route::get('reduce/{id}',[ItemController::class, 'getReduceByOne'])->name('item.
 Route::get('checkout',[ItemController::class, 'postCheckout'])->name('checkout');
 
 Route::get('/items', [ItemController::class, 'index']);
+Route::get('/customer/orders', [CustomerController::class, 'index']);
 
 Route::prefix('user')->group(function () {
     Route::get('/signup', [UserController::class, 'getSignup']);
