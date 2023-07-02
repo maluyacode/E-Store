@@ -6,12 +6,17 @@
     "license": "MIT",
     "require": {
         "php": "^7.3|^8.0",
+        "consoletvs/charts": "6.*",
+        "enyo/dropzone": "^5.9",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "hisman/laravel-make-class": "^1.0",
         "laravel/framework": "^8.75",
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
+        "maatwebsite/excel": "^3.1",
+        "spatie/laravel-medialibrary": "^9.12",
+        "spatie/laravel-searchable": "*",
         "yajra/laravel-datatables": "^1.5",
         "yajra/laravel-datatables-buttons": "^4.13"
     },

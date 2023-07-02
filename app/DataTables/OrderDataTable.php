@@ -10,6 +10,7 @@ use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\Debugbar\Facades\Debugbar;
 
 class OrderDataTable extends DataTable
 {
@@ -22,11 +23,22 @@ class OrderDataTable extends DataTable
     public function dataTable($query)
     {
         return datatables()
-            ->query($query)
+            ->collection($query)
             ->addColumn('action',  function ($row) {
                 $actionBtn = '<a href="javascript:void(0)" class="edit btn btn-success btn-sm">Edit</a> <a href="javascript:void(0)" class="delete btn btn-danger btn-sm">Delete</a>';
                 return $actionBtn;
-            })->rawColumns(['action']);
+            })
+            ->addColumn('total', function($order){
+                return number_format($order->items->map(function($item){
+                    return $item->pivot->quantity * $item->sell_price;
+                })->sum(), 2);
+            })
+            ->addColumn('items', function($order){
+                return $order->items->map(function($item){
+                    return $item->title;
+                })->implode('<br>');
+            })
+            ->rawColumns(['action', 'items']);
     }
 
     /**
@@ -37,12 +49,18 @@ class OrderDataTable extends DataTable
      */
     public function query(Order $model)
     {
-        return $orders = DB::table('customer as c')->join('orderinfo as o', 'o.customer_id', '=', 'c.customer_id')
-            ->join('orderline as ol', 'o.orderinfo_id', '=', 'ol.orderinfo_id')
-            ->join('item as i', 'ol.item_id', '=', 'i.item_id')
-            ->where('c.user_id', Auth::id())
-            ->select('o.orderinfo_id', 'o.date_placed', DB::raw("SUM(ol.quantity * i.sell_price) as total"))
-            ->groupBy('o.orderinfo_id', 'o.date_placed');
+        $orders = Order::with(['customer', 'items'])
+        ->orderBy('date_placed', 'DESC')->get();
+
+        Debugbar::info($model);
+
+        return $orders;
+        // return $orders = DB::table('customer as c')->join('orderinfo as o', 'o.customer_id', '=', 'c.customer_id')
+        //     ->join('orderline as ol', 'o.orderinfo_id', '=', 'ol.orderinfo_id')
+        //     ->join('item as i', 'ol.item_id', '=', 'i.item_id')
+        //     ->where('c.user_id', Auth::id())
+        //     ->select('o.orderinfo_id', 'o.date_placed', DB::raw("SUM(ol.quantity * i.sell_price) as total"))
+        //     ->groupBy('o.orderinfo_id', 'o.date_placed');
     }
 
     /**
@@ -78,6 +96,7 @@ class OrderDataTable extends DataTable
             Column::make('orderinfo_id'),
             Column::make('date_placed'),
             Column::make('total'),
+            Column::make('items'),
             Column::computed('action')
             ->exportable(false)
             ->printable(false)

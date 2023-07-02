@@ -8,6 +8,8 @@ use App\Models\Customer;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\DataTables\OrderDataTable;
+use App\DataTables\UserDataTable;
+
 class UserController extends Controller
 {
     public function getSignup(){
@@ -57,5 +59,8 @@ class UserController extends Controller
         return $dataTable->render('user.profile');
 
         // return view('user.profile');
+    }
+    public function getUsers(UserDataTable $dataTable){
+        return $dataTable->render('admin.users');
     }
 }

@@ -8,6 +8,7 @@ use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
+use Barryvdh\Debugbar\Facades\Debugbar;
 
 class ItemsDataTable extends DataTable
 {
@@ -21,11 +22,22 @@ class ItemsDataTable extends DataTable
     {
         return datatables()
             ->eloquent($query)
-            ->addColumn('action',  function($row){
-                $actionBtn = '<a href="javascript:void(0)" class="edit btn btn-success btn-sm">Edit</a> <a href="javascript:void(0)" class="delete btn btn-danger btn-sm">Delete</a>';
+            ->addColumn('images', function ($row) {
+                $images = $row->getMedia('images');
+                foreach ($images as $image) {
+                    Debugbar::info($image);
+                    return "<img src='{$image->getUrl('thumb')}' >";
+                }
+            })
+            ->addColumn('action',  function ($row) {
+                $actionBtn = '<a href="javascript:void(0)" class="edit btn btn-success btn-sm">Edit</a>
+                <form action= "'.route('item.delete', $row->item_id).'" method="POST">
+                <input type="hidden" name="_method" value="DELETE">
+                <input type="hidden" name="_token" value="'.csrf_token().'">
+                <button type="hidden" class="delete btn btn-danger btn-sm">Delete</button>
+                </form>';
                 return $actionBtn;
-            })->rawColumns(['action']);
-
+            })->rawColumns(['action', 'images']);
     }
 
     /**
@@ -57,7 +69,8 @@ class ItemsDataTable extends DataTable
                 Button::make('export'),
                 Button::make('print'),
                 Button::make('reset'),
-                Button::make('reload')
+                Button::make('reload'),
+                Button::make('import')
             );
     }
 
@@ -69,6 +82,11 @@ class ItemsDataTable extends DataTable
     protected function getColumns()
     {
         return [
+            Column::computed('images')
+                ->exportable(false)
+                ->printable(false)
+                ->width(60)
+                ->addClass('text-center'),
             Column::make('item_id'),
             Column::make('title'),
             Column::make('description'),

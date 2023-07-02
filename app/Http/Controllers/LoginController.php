@@ -3,8 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Auth;
-
+use Illuminate\Support\Facades\Auth;
 class LoginController extends Controller
 {
     public function postSignin(Request $request){
@@ -15,9 +14,12 @@ class LoginController extends Controller
 
         if(auth()->attempt(array('email' => $request->email, 'password' => $request->password)))
         {
-
-
+            if (auth()->user()->role === 'admin') {
+                return redirect()->route('dashboard.index');
+            }
+            else {
                 return redirect()->route('user.profile');
+            }
         }
         else{
             return redirect()->route('user.signin')

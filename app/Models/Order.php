@@ -12,6 +12,7 @@ class Order extends Model
     use HasFactory;
     protected $table = "orderinfo";
     protected $primaryKey = "orderinfo_id";
+    protected $fillable = ['customer_id', 'date_placed', 'date_shipped', 'shipping', 'status'];
 
     public function customer(){
         return $this->belongsTo(Customer::class, 'customer_id');
